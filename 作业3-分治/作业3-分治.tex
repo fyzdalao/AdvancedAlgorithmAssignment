@@ -1,0 +1,243 @@
+\documentclass{ctexart}
+
+\usepackage{mathtools}
+\usepackage{ntheorem}
+\usepackage{graphicx}
+\usepackage{subfig}  
+\usepackage{geometry}
+\usepackage{booktabs}
+\geometry{a4paper}
+\usepackage[ruled,linesnumbered]{algorithm2e}
+
+\title{高级算法设计与分析作业3\\分g治}
+\author{傅彦璋\ 23S003008}
+\date{2024.5.3}
+
+
+\newtheorem{definition}{定义}
+
+\pagestyle{plain}
+\begin{document}
+
+\maketitle
+
+
+
+\section*{1}
+采取类似二分查找的思路。先选择数组中间的一个元素$a_{mid}$，并检查其两边的元素以确定其出现次数。如果出现次数为1则算法终止并输出$a_{mid}$。如果出现次数不为1，那么这个元素将有序数组分为了左右两部分：小于$a_{mid}$的子数组和大于$a_{mid}$的子数组。我们递归地在长度为奇数的子数组查找。
+
+
+\begin{algorithm}[H]
+  \SetAlgoLined
+  \KwData{题目3.1中的有序整数数组$a_1,...,a_n$}
+  \KwResult{仅出现一次的元素}
+
+  初始化$l \leftarrow 1,\ r\leftarrow n $\;
+  \While{$l \le r$}{
+    $mid \leftarrow \lfloor (l+r)/2 \rfloor $ \;
+    在$a_{mid-1},a_{mid},a_{mid+1}$中统计$a_mid$出现的次数$t$\;
+    \If{$t=1$}{
+      \Return $a_{mid}$
+    }
+    记值为$a_{mid}$的元素为$a_{mid1}$和$a_{mid2}$\;
+    \If{$mid1$是偶数}{
+      $r\leftarrow mid1-1$\;
+    }
+    \Else{
+      $l\leftarrow mid2+1$\;
+    }
+  }
+  \caption{查找出现一次的元素}
+\end{algorithm}
+
+显然（严格证明可参考作业8第1题）算法的时间复杂度是$O(\log n)\in o(n)$。
+
+\section*{2}
+任意连续子序列$B$为包含$A$中位置$i$到位置$j$（$i\le j$）的元素的连续子序列，考虑对这个子序列求解。$B$中最大连续子序列的位置表示为$(f(i,j),g(i,j))$。$B$中包含位置$j$的最大连续子序列的位置表示为$(r(i,j),j)$。$B$中包含位置$i$的最大连续子序列的位置表示为$(i,l(i,j))$。
+
+那么，对任意连续子序列$B$，如果我们已经得知$B$的左右两个连续子序列的$f,g,l,r$的值，我们就可以用动态规划的方式得到$B$的$f,g,l,r$的值。我们用动态规划的方式求得序列$A$对应的$f(1,n)$和$g(1,n)$，问题就解决了。于是有Algorithm2。
+
+Algorithm2中，$s$可以通过线性时间进行求前缀和的预处理得到。
+
+Longest\_Continuous\_Subsequence(1,n)输出的二元组即为题目中要求的使得$A[i]+...+A[j]$最大的$i,j$。
+
+每次递归地调用Longest\_Continuous\_Subsequence(L,R)消耗的时间是$O(1)$的，调用次数是$O(n)$的。$s$的预处理时间是$O(n)$的。所以算法总体的时间复杂度是$O(n)$的。
+
+\begin{algorithm}[H]
+  \SetAlgoLined
+  \KwData{$L$和$R$，满足$L\le R$，用$s(i,j)$表示$A_i+...+A_j$}
+  \KwResult{$f(L,R),g(L,R),l(L,R),r(L,R)$}
+  \If{L=R}{
+    $f(L,R)\leftarrow L,g(L,R)\leftarrow L,l(L,R)\leftarrow L,r(L,R)\leftarrow L$\;
+    \Return $f(L,R),g(L,R)$
+  }
+  $mid\leftarrow \lfloor (L+R)/2 \rfloor $  \tcc*{分治地计算左右两个子序列的$f,g,l,r$} 
+  执行Longest\_Continuous\_Subsequence($L$,$mid$)\; 
+  执行Longest\_Continuous\_Subsequence($mid+1$,$R$)\;
+  $a\leftarrow s(f(L,mid),g(L,mid))$\;
+  $b\leftarrow s(f(mid+1,R),g(mid+1,R))$\;
+  $c\leftarrow s(r(L,mid),l(mid+1,R))$\;
+  \uIf(\tcc*[f]{计算$f$和$g$}){$a\ge b,a\ge c$}{
+    $f(L,R)\leftarrow f(L,mid)$;$g(L,R)\leftarrow g(L,mid)$  \;
+  }
+  \uElseIf{$b\ge a,b\ge c$}{
+    $f(L,R)\leftarrow f(mid+1,R)$;$g(L,R)\leftarrow g(mid+1,R)$  \;
+  }
+  \Else{
+    $f(L,R)\leftarrow r(L,mid)$;$g(L,R) \leftarrow l(mid+1,R)$
+  }
+  
+  \uIf(\tcc*[f]{计算$l$}){$l(L,mid)=mid$ and $s(mid+1,l(mid+1,R)) \ge 0 $}{
+    $l(L,R) = l(mid+1,R)$
+  }
+  \Else{
+    $l(L,R) = l(L,mid)$
+  } 
+  
+  \uIf(\tcc*[f]{计算$r$}){$r(mid+1,R)=mid+1$ and $s(r(L,mid),mid) \ge 0 $}{
+    $r(L,R) = r(L,mid)$
+  }
+  \Else{
+    $l(L,R) = l(mid+1,R)$
+  } 
+  
+  
+  
+  \Return $f(L,R),g(L,R)$
+  \caption{Longest\_Continuous\_Subsequence(L,R)}
+\end{algorithm}
+
+
+\section*{3}
+令集合$S'=S$，然后将集合$S'$中的每个元素$s$都改为$x-s$，得到新的集合$S''$。如果$S$和$S''$中有相同元素，那么$S$中存在两个元素的和为$x$，否则不存在。
+
+Algorithm3的输出即为问题的答案。算法的时间瓶颈在于Algorithm4中的排序操作，故算法的时间复杂度为$O(n\log n)$。
+
+
+
+\begin{algorithm}[H]
+  \SetAlgoLined
+  \KwData{$S$和$x$}
+  \KwResult{“是”或“否”}
+  $S_1 \leftarrow S$\;
+  $S_2 \leftarrow \emptyset $\;
+  \For{$a\in S_1$}{
+    $S_2 = S_2 \cup \{ x-a\} $\;  
+  }
+  \Return 判断两集合是否有相同元素($S$,$S_2$)
+
+  \caption{判断是否存在和为x的两个元素}
+\end{algorithm}
+
+
+\begin{algorithm}[H]
+  \SetAlgoLined
+  \KwData{实数集合$U$和实数集合$V$}
+  \KwResult{“是”或“否”}
+  将集合$U$中元素升序排序得到序列$A=a_1,a_2,...,a_n$\;
+  将集合$V$中元素升序排列得到序列$B=b_1,b_2,...,b_m$\;
+  $i\leftarrow 1$;$j \leftarrow 1$\;
+  \While{$i\le n,j\le m$}{
+    \uIf{$a_i=b_j$}{
+      \Return 是    
+    }
+    \uElseIf{$a_i<b_j$}{
+      $i\leftarrow i+1$
+    }
+    \Else
+    {
+      $j\leftarrow j+1$
+    }
+  }
+  \Return 否
+  
+  \caption{判断两集合是否有相同元素($U$,$V$)}
+\end{algorithm}
+
+
+
+\section*{4}
+
+设计两个算法。
+
+算法一：
+
+将集合用$O(nm)$的时间代价生成出来。然后，对这个集合执行作业8题目4的线性时间算法，找到其中第$k$小元素。算法整体的时间复杂度为$O(nm)$。
+
+
+
+
+算法二：
+
+
+注意：该算法复杂度与元素值大小有关。
+
+先将两个数组分别排序得到序列$a_1,a_2,...,a_n$和$b_1,b_2,...,b_m$。第$k$小元素不会小于$a_1 \cdot b_1$，不会大于$a_n \cdot b_m$。所以我们在$[a_1 \cdot b_1 ,a_n \cdot b_m] $范围内二分答案。对于这个范围内选取的一个值$val$，我们只需要判断集合中是否恰好有$k$个元素小于$val$（或者有不超过$k$个元素小于$val$，超过$k$个元素小于等于$val$），如果是，则在判断过程中我们顺便选取这$k$个数中最大的即为问题所求。算法描述如Algorithm5。
+
+\begin{algorithm}[H]
+  \SetAlgoLined
+  \KwData{实数数组$A$和实数数组$B$}
+  \KwResult{第k小元素}
+  将$A$排序得到升序序列$a_1,...,a_n$\;
+  将$B$排序得到升序序列$b_1,...,b_m$\;
+  $L\leftarrow a_1 \cdot b_1$;$R\leftarrow a_n \cdot b_m$\;
+  \While{$L<R$}{
+    $val\leftarrow (L+R)/2$\;
+    $cnt_1\leftarrow 0$;\ $cnt_2\leftarrow 0$ \tcc*{$cnt_1,cnt_2$将分别存储集合中小于$val$的元素数量和小于等于$val$的元素数量} 
+    $pos_2\leftarrow m$;\ $ans\leftarrow -\infty$\;
+    \For{$i\leftarrow$ $1$ to $n$}{
+      在有序序列$a_i\cdot b_1,...,a_i\cdot b_{pos_2}$里二分查找$val$\;
+      $pos_1\leftarrow$有序序列中小于$val$的元素数量\;
+      $pos_2\leftarrow$有序序列中小于等于$val$的元素数量\;
+      $cnt_1\leftarrow cnt_1+pos_1$\;
+      $cnt_2\leftarrow cnt_2+pos_2$\;
+      $ans = \max(ans,a_i\cdot b_{pos_1})$\;
+    }
+    \uIf(\tcc*[f]{刚好$k$个元素小于$val$，返回其中最大的那个}){$cnt_1=k$}{
+      \Return $ans$    
+    }
+    \uElseIf(\tcc*[f]{第$k$小的元素刚好等于$val$}){$cnt_1<k,cnt_2\ge k$}{
+      \Return $val$
+    }
+    \uElseIf(\tcc*[f]{小于$val$的元素多于$k$个，说明$val$应取更小值}){$cnt_1 > k$}{
+      $R\leftarrow val$
+    }
+    \Else(\tcc*[f]{小于等于$val$的元素少于$k$个，说明$val$应取更大值})
+    {$L\leftarrow val$}
+  }
+  \caption{计算第k小元素}
+\end{algorithm}
+
+我们考虑算法的时间复杂度。不失一般性，不妨设$n<m$。
+Algorithm5中第9行至第14行需要在长度为$O(m)$的有序序列中进行二分，时间代价是$O(\log m)$的。第4行至第25行的二分过程需要执行的次数为$O(\log\frac{ab}{\epsilon})$，其中$a$是数组$A$中最大值，$b$是数组$B$中最大值，$\epsilon$是集合中值最接近的两个元素的差值。第1行和第2行排序的代价是$O(m\log m)$的。
+
+算法的总时间复杂度为$O(n\log m \log\frac{ab}{\epsilon} + m\log m )$.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\end{document}  
