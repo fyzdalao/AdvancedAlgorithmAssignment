@@ -1,0 +1,114 @@
+\documentclass{ctexart}
+
+\usepackage{mathtools}
+\usepackage{ntheorem}
+\usepackage{graphicx}
+\usepackage{subfig}  
+\usepackage{geometry}
+\usepackage{booktabs}
+\geometry{a4paper}
+\usepackage[ruled,linesnumbered]{algorithm2e}
+
+\title{高级算法设计与分析作业1\\算法基础}
+\author{傅彦璋\ 23S003008}
+\date{2024.5.6}
+
+
+\newtheorem{definition}{定义}
+
+\pagestyle{plain}
+\begin{document}
+
+\maketitle
+
+\section*{1}
+
+求$a$和$b$（$a \ge b$）的最大公约数的欧几里得算法描述如$GCD(a,b)$。 算法的输入规模为$\log_2 a + \log_2 b$。
+
+
+\begin{algorithm}[H]
+  \SetAlgoLined
+  \KwData{$a,b$满足$a\ge b$}
+  \KwResult{$gcd(a,b)$}
+  $r \leftarrow a \mod b$  \;
+  \uIf{$r \neq 0$}{
+    \Return $GCD(b,r)$
+  }
+  \Else{
+    \Return $b$
+  }
+  \caption{$GCD(a,b)$}
+\end{algorithm}
+
+记算法第$k$次递归调用$GCD(a,b)$时，$b$的值为$b_k$。算法第1行的$r = a\mod b$意味着$r\le \frac{a}{2}$，所以，对任意$k$，一定有$b_{k+2}\le \frac{b_k}{4}$。当某一次递归调用$GCD(a,1)$，即$b=1$的时候，算法一定停止。所以，算法的递归调用次数不超过$\log_2 b$。故求余操作不超过$\log_2 b$次，赋值操作不超过$3\log_2 b$次。
+
+我们知道，计算$a \mod b$操作的时间代价是$O(\log_2 a)$的。所以所有求余操作产生的时间代价是$O(\log_2 a \cdot \log_2 b)\in O(\log^2_2 a)$的。
+
+于是，对于规模为$O(n)$的输入规模，算法的时间复杂度为$O(n^2)$。
+
+
+
+
+
+\section*{2}
+\subsection*{(a)}
+
+算法由两重循环构成。外层循环最多循环$n-1$次（变量$i$从$2$增长到$n$即停止），是有限的次数，一定会停止。在每个外层循环中，内层循环最多循环$i-1$次（变量$j$从$i-1$下降到$1$即停止），而$i-1 < n$，也是有限的。所以算法在有限步内必然停止。
+
+
+\subsection*{(b)}
+用循环不变量方法证明算法的正确性：
+
+循环变量为$i$，初始时，$i=2$，$A[1]$来自输入且有序。当循环体执行前，若$A[1,2,...,i-1]$来自输入且有序，则循环体执行一遍后，$A[1,2,...,i]$来自输入且有序。终止时，$i=n+1$，故循环体执行最后一遍后，$A[1,2,...,n]$来自输入且有序。
+
+
+\subsection*{(c)}
+
+最好情况：初始序列是有序的，算法的第5、6行不会执行。赋值操作仅出现在第2、3、7行。显然赋值操作次数和比较操作次数都是$O(n)$的。
+
+最坏情况：初始序列是逆序的。对于每个外层循环，算法的内层循环都要执行$i-1$遍。赋值操作次数和比较操作次数都是$O(n^2)$的。
+
+平均情况：所有输入服从均匀分布，我们知道，整个序列中逆序对数平均为$\frac{n(n-1)}{4}$，那么，在算法5、6行发生的赋值操作次数为$\frac{n(n-1)}{2}$，那么相对应的，在算法第4行发生的比较操作次数不低于$\frac{n(n-1)}{2}$。考虑上算法第2、3、7行的操作，总的赋值操作次数是$\frac{n^2}{2} + \frac{5n}{2}$。总之，比较次数和赋值次数皆是$O(n^2)$的。
+
+
+
+
+
+
+
+\section*{3}
+
+算法的输入为整数$n$，输入规模为$n$的规模，在二进制模型下即$\log_2 n$，总之是$O(\log n)$的规模。循环将执行最多$n^{1/2}$次，即$\left( 2^{\log_2 n}\right) ^{1/2}$次。对于输入规模$n$，算法的基础操作次数是$2^{n/2}$，是指数时间算法。
+
+
+\section*{4}
+
+算法的输入为整数$n$，输入规模为$n$的规模，在二进制模型下即$\log_2 n$，总之是$O(\log n)$的规模。当$n\ge 2$的时候，算法执行基本操作加法的次数是$n-1$次,即$2^{\log_2 n}-1$。即，对输入规模$x$，算法基本操作的次数是$2^x-1$，所以算法是指数时间算法。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\end{document}  
