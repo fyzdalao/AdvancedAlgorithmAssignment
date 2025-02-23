@@ -1,0 +1,88 @@
+\documentclass{ctexart}
+
+\usepackage{mathtools}
+\usepackage{ntheorem}
+\usepackage{graphicx}
+\usepackage{subfig}  
+\usepackage{geometry}
+\usepackage{booktabs}
+\geometry{a4paper}
+\usepackage[ruled,linesnumbered]{algorithm2e}
+
+\title{高级算法设计与分析作业9\\随机算法}
+\author{陈鹏宇\ 23B903039}
+\date{2025/5/5}
+
+
+\newtheorem{definition}{定义}
+
+\pagestyle{plain}
+\begin{document}
+
+\maketitle
+
+
+\section*{1}
+(1) 
+考虑加权边覆盖问题的线性规划
+$$
+\begin{aligned}
+\max.& \sum_{(i,j)\in E}w_{ij}x_{ij}\\
+s.t.& \sum_{i,j\in E}x_{ij}\le 1 && \forall i\in V\\
+&x_{ij}\ge 0 && \forall (i,j)\in E
+\end{aligned}
+$$
+与给定的线性规划对偶，设该LP的优化解为$z'_{LP}$由弱对偶定理，有$z'_{LP}\ge z_{LP}\ge z^*_{LP}$.
+
+(2)
+假设通过贪心算法得到了一个匹配$M$，则对$\forall i\in V, x_i=\sum_{(i,j)\in M}w_{ij}+\sum_{(j,i)\in M}w_{ji}$.则由于贪心算法，对$\forall(i,j)\in E, \exists e\in \{(k,i),(k,j),(i,k),(j,k)\}\cap M$使得$w_{e}\ge w_{ij}$，否则$i,j$为两个可匹配的点，与贪心算法矛盾。 故$x_i+x_j\ge w_{ij}$，满足条件。且这个解的大小为$2z$，则有$2z\ge z^*$.
+
+\section*{2}
+(1) 
+$$
+\begin{aligned}
+\max.& C_1 + C_2\\
+s.t.& C_1 \le x_1 + (1-x_3)\\
+& C_2 \le (1-x_2) + x_3\\
+& x_1,x_2,C_1,C_2\in\{0,1\}
+\end{aligned}
+$$
+(2)设$C_i=\bigvee_{j=1}^{k}a_{ij},a_{ij}\in\{x_t,\neg x_t|1\le t\le n\}$，令对每个变量$x_i$以$\frac{1}{2}$的概率输出0，$\frac{1}{2}$的概率输出1，则对任意析取范式$C_i=\bigvee_{j=1}^{k}a_{ij},a_{ij}\in\{x_t,\neg x_t|1\le t\le n\}$，能弄真的概率为$1-(\frac{1}{2})^k$，则输出解的期望为$\sum_{i=1}^{m}1-(\frac{1}{2})^k$，因此近似比期望至少为$1-2^{-k}$
+
+\section*{3}
+
+给定一个满足三角不等式的图G,找到一个最小生成树T. 之后找到图中所有奇数度的顶点O,找到G[O]上的完美匹配M.然后求$T\cup M$上的欧拉回路并删除多余边以确保顶点只访问一次.
+
+设$z^*$是最优解.显然T的权值和小于等于$z\le z^*$. 由于三角不等式,得知M的权重和至多是$z^*/2$.因此$z\le z^* + z^*/2 = 3z^*/2$,故近似比为3/2.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\end{document}  
